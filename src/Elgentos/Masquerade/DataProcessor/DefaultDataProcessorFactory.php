@@ -24,7 +24,8 @@ class DefaultDataProcessorFactory implements DataProcessorFactory
 
         $whereCondition = $tableConfiguration['where'] ?? '';
 
-        foreach ($tableConfiguration['columns'] as $column => $columnData) {
+        $columns = $tableConfiguration['columns'] ?? [];
+        foreach ($columns as $column => $columnData) {
             if ($columnData['nullColumnBeforeRun'] ?? false) {
                 if (strpos($whereCondition, $column) !== false) {
                     $output->warning(
@@ -55,6 +56,10 @@ class DefaultDataProcessorFactory implements DataProcessorFactory
 
         if ($tableConfiguration['eav'] ?? false) {
             return new EavDataProcessor($output, $tableService, $tableServiceFactory, $tableConfiguration);
+        }
+
+        if($tableConfiguration['provider']['delete_and_anonymize'] ?? false) {
+            return new DeleteAndAnonymizeTableProcessor($output, $tableService, $tableConfiguration);
         }
 
         return new RegularTableProcessor($output, $tableService, $tableConfiguration);

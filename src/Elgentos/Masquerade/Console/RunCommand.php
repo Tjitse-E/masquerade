@@ -168,10 +168,11 @@ class RunCommand extends Command
 
         /** @var DataProcessorFactory $dataProcessorFactory */
         $dataProcessorFactory = new $dataProcessorFactoryClass();
+        $tableName = $table['name'];
         try {
             $dataProcessor = $dataProcessorFactory->create($this->output, $this->tableServiceFactory, $table);
         } catch (TableDoesNotExistsException $exception) {
-            $this->output->info('Table %s does not exists. Skipping...', $table['name']);
+            $this->output->info('Table %s does not exists. Skipping...', $tableName);
             return;
         }
 
@@ -185,19 +186,25 @@ class RunCommand extends Command
         );
 
         $isIntegrityImportant = $this->input->hasOption('with-integrity') || $table['provider']['where'] ?? '';
+        $deleteAndAnonymize = $table['provider']['delete_and_anonymize'] ?? false;
         $isDelete = $table['provider']['delete'] ?? false;
         $isTruncate = $table['provider']['truncate'] ?? false;
 
         if ($isIntegrityImportant && $isDelete) {
-            $this->output->info('Deleting records from %s table', $table);
+            $this->output->info('Deleting records from %s table', $tableName);
             $dataProcessor->delete();
-            $this->output->success('Records have been deleted from %s table', $table);
+            $this->output->success('Records have been deleted from %s table', $tableName);
             return;
         } elseif ($isDelete || $isTruncate) {
-            $this->output->info('Truncating records from %s table', $table);
+            $this->output->info('Truncating records from %s table', $tableName);
             $dataProcessor->truncate();
-            $this->output->success('Records have been truncated from %s table', $table);
+            $this->output->success('Records have been truncated from %s table', $tableName);
             return;
+        } elseif ($deleteAndAnonymize) {
+            $this->output->info('Deleting records from %s table', $tableName);
+            $dataProcessor->delete();
+            $this->output->success('Records have been deleted from %s table', $tableName);
+            $this->output->info('Anonymizing the remaining records from %s table', $tableName);
         }
 
         try {
