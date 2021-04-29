@@ -186,7 +186,7 @@ class RunCommand extends Command
         );
 
         $isIntegrityImportant = $this->input->hasOption('with-integrity') || $table['provider']['where'] ?? '';
-        $deleteAndAnonymize = $table['provider']['delete_and_anonymize'] ?? false;
+        $deleteAndAnonymize = (bool) ($table['provider']['delete_where'] ?? false);
         $isDelete = $table['provider']['delete'] ?? false;
         $isTruncate = $table['provider']['truncate'] ?? false;
 

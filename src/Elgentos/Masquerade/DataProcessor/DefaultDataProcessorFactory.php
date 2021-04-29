@@ -58,10 +58,6 @@ class DefaultDataProcessorFactory implements DataProcessorFactory
             return new EavDataProcessor($output, $tableService, $tableServiceFactory, $tableConfiguration);
         }
 
-        if($tableConfiguration['provider']['delete_and_anonymize'] ?? false) {
-            return new DeleteAndAnonymizeTableProcessor($output, $tableService, $tableConfiguration);
-        }
-
         return new RegularTableProcessor($output, $tableService, $tableConfiguration);
     }
 }

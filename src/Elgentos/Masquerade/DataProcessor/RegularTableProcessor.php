@@ -55,7 +55,7 @@ class RegularTableProcessor implements DataProcessor
     /** {@inheritDoc} */
     public function delete(): void
     {
-        $this->tableService->delete($this->configuration['provider']['where'] ?? '');
+        $this->tableService->delete($this->configuration['provider']['delete_where'] ?? '');
     }
 
     /** {@inheritDoc} */
