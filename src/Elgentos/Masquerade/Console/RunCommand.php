@@ -186,11 +186,16 @@ class RunCommand extends Command
         );
 
         $isIntegrityImportant = $this->input->hasOption('with-integrity') || $table['provider']['where'] ?? '';
-        $deleteAndAnonymize = (bool) ($table['provider']['delete_where'] ?? false);
+        $isDeleteWhereUsed = (bool) ($table['provider']['delete_where'] ?? false);
         $isDelete = $table['provider']['delete'] ?? false;
         $isTruncate = $table['provider']['truncate'] ?? false;
 
-        if ($isIntegrityImportant && $isDelete) {
+        if ($isDeleteWhereUsed) {
+            $this->output->info('Deleting records from %s table', $tableName);
+            $dataProcessor->delete();
+            $this->output->success('Records have been deleted from %s table', $tableName);
+            $this->output->info('Anonymizing the remaining records from %s table', $tableName);
+        }  elseif ($isIntegrityImportant && $isDelete) {
             $this->output->info('Deleting records from %s table', $tableName);
             $dataProcessor->delete();
             $this->output->success('Records have been deleted from %s table', $tableName);
@@ -200,11 +205,6 @@ class RunCommand extends Command
             $dataProcessor->truncate();
             $this->output->success('Records have been truncated from %s table', $tableName);
             return;
-        } elseif ($deleteAndAnonymize) {
-            $this->output->info('Deleting records from %s table', $tableName);
-            $dataProcessor->delete();
-            $this->output->success('Records have been deleted from %s table', $tableName);
-            $this->output->info('Anonymizing the remaining records from %s table', $tableName);
         }
 
         try {
